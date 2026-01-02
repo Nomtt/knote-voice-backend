@@ -22,7 +22,7 @@ The existing Knote app relies on **client-side processing** (the phone's built-i
 - AI Pipeline: OpenAI Whisper (Speech-to-Text) + GPT-4o (Semantic Parsing)
 - Frontend: HTML5, TailwindCSS, Vanilla JS
 
-### Result: 
+### Result & Validation: 
 To ensure reliability and efficiency, we adopted an Acceptance Test-Driven Development (ATDD) approach.
 
 We defined 27 specific acceptance criteria in Gherkin syntax (covering accents, noise, and logic conflicts) before writing the core code. In the final evaluation, the prototype achieved up to 98% success rate against these scenarios, successfully parsing complex "Singlish" orders that the legacy system failed to recognize.
