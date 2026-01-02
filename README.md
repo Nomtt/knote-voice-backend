@@ -23,7 +23,10 @@ The existing Knote app relies on **client-side processing** (the phone's built-i
 - Frontend: HTML5, TailwindCSS, Vanilla JS
 
 ### Result: 
-Given the time constraints, ATDD approach was applied. With pre-defined 27 acceptance criterias in gherkin, the performance of prototype was evaluated. At the final step, we achieved up to 98% success rate for our model.
+To ensure reliability and efficiency, we adopted an Acceptance Test-Driven Development (ATDD) approach.
+
+We defined 27 specific acceptance criteria in Gherkin syntax (covering accents, noise, and logic conflicts) before writing the core code. In the final evaluation, the prototype achieved up to 98% success rate against these scenarios, successfully parsing complex "Singlish" orders that the legacy system failed to recognize.
+
 <img width="1095" height="684" alt="image" src="https://github.com/user-attachments/assets/ba4553da-c88e-4255-a168-98bbc7aed67d" />
 <img width="1001" height="706" alt="image" src="https://github.com/user-attachments/assets/9395e019-9cf2-40fe-b9d4-b403a5e764df" />
 
