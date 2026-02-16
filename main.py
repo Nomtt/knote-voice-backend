@@ -5,11 +5,9 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from openai import OpenAI
 
-# 1. Initializing the App
 app = Flask(__name__)
 CORS(app)
 
-# Example menu
 MENU_DB = [
     {"id": "1", "name": "Beef Burger", "price": 6.5},
     {"id": "2", "name": "Sandwich", "price": 5.5},
@@ -18,12 +16,11 @@ MENU_DB = [
     {"id": "14", "name": "Diet Coke", "price": 1.5},
 ]
 
-# homepage
+# homepage, frontend
 @app.route('/')
 def index():
     return send_file('index.html')
 
-# MENU API for frontend 
 @app.route('/menu', methods=['GET'])
 def get_menu():
     """Returns the full list of menu items."""
@@ -51,7 +48,6 @@ def delete_menu_item(item_id):
 client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 @app.route('/process_audio', methods=['POST'])
 def process_audio():
-    # Validation
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -64,7 +60,6 @@ def process_audio():
         print("Calling Api1 (Whisper)...")
         menu_names = ", ".join([item['name'] for item in MENU_DB])
 
-        # Transcribtion happen here
         transcript = client.audio.transcriptions.create(
             model="whisper-1",
             file=audio_file_read,
@@ -75,7 +70,6 @@ def process_audio():
         user_text = transcript.text
         print(f"User said: {user_text}")
 
-        # SYSTEM PROMPT 
         SYSTEM_PROMPT = f"""
         You are an AI Cashier. Extract data into strict JSON.
 
@@ -152,7 +146,6 @@ def process_audio():
         data = json.loads(json_response_str)
 
         # SERVER-SIDE LOGIC HANDLERS 
-
         intent = data.get("intent")
         global_command = data.get("global_command")
         results = data.get("results", [])
@@ -166,7 +159,6 @@ def process_audio():
         # B. Handle Menu Updates (Explicit Admin Mode)
         elif intent == "ADD_TO_MENU" and results:
             for entry in results:
-                # 1. Create and Save to Database
                 new_db_item = {
                     "id": str(uuid.uuid4()),
                     "name": item_name, 
@@ -174,7 +166,6 @@ def process_audio():
                 }
                 MENU_DB.append(new_db_item)
 
-                # 2. Add to Cart
                 order_item["price"] = float(new_price)
                 
                 print(f"Added to DB: {new_db_item}")
@@ -186,17 +177,13 @@ def process_audio():
             for order_item in results:
                 item_name = order_item.get("item")
 
-                # 1. Price Lookup
                 found = next((m for m in MENU_DB if m["name"].lower() == item_name.lower()), None)
 
                 if found:
-                    # CASE A: Existing Item found in DB
                     order_item["price"] = found["price"]
-                    # Normalization
                     raw_action = order_item.get("action")
                     order_item["action"] = "add" if not raw_action else str(raw_action).lower().strip()
 
-                    # Add to valid results (Success)
                     valid_results.append(order_item)
                     print(f"Matched: {item_name} @ {found['price']}")
 
@@ -205,11 +192,8 @@ def process_audio():
                     new_price = order_item.get("price")
 
                     if new_price is None or new_price == 0:
-                        # ERROR: User didn't say the price
                         print(f"Error: Price missing for new item '{item_name}'")
 
-                        # We create a special "error object" to send back to frontend
-                        # But we DO NOT add it to the DB or Cart logic
                         error_response = {
                             "item": item_name,
                             "error": f"Price missing for {item_name}", 
@@ -221,29 +205,22 @@ def process_audio():
                         # SUCCESS: User said "Add Lobster for 50"
                         print(f"Auto-Learning: Creating '{item_name}' @ {new_price}")
 
-                        # 1. Create and Save to Database
                         new_db_item = {
                             "id": str(uuid.uuid4()),
                             "name": item_name, 
                             "price": int(new_price)
                         }
                         MENU_DB.append(new_db_item)
-
-                        # 2. Add to Cart
                         order_item["price"] = int(new_price)
                         order_item["is_new"] = True 
-
-                        # Normalize action
                         raw_action = order_item.get("action")
                         order_item["action"] = "add" if not raw_action else str(raw_action).lower().strip()
 
                         valid_results.append(order_item)
 
-            # Update the response 
             data["results"] = valid_results
             data["intent"] = "TRANSACTION"
 
-        # Cleanup
         audio_file_read.close()
         if os.path.exists(unique_filename):
             os.remove(unique_filename)
