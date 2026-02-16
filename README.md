@@ -37,4 +37,4 @@ To transition this prototype into a scalable production environment, the followi
 2. **Model Distillation (Cost & Latency)** The current implementation utilizes the general-purpose GPT-4o model. For high-volume deployment, this should be replaced by a fine-tuned, lightweight model (e.g., GPT-4o-mini or a distilled local model). This would drastically reduce inference costs and latency while maintaining high accuracy for the specific domain of food ordering.
 3. **Real-Time Token Streaming** Migrating the client-server communication from REST (HTTP) to WebSockets would significantly improve the user experience. This enables token streaming, allowing the UI to display the order text character-by-character as it is processed, masking backend latency and providing immediate visual feedback.
 
-© KiotViet Corp.
+© KiotViet, Citigo Software JSC
